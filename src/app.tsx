@@ -9,7 +9,7 @@ type Player = {
   finishTime: number | null;
 };
 
-const MAX_CLICKS = 15;
+const MAX_CLICKS = 25;
 
 const playersConfig: Player[] = [
   { id: 1, key: "r", clicks: 0, finished: false, finishTime: null },
@@ -22,36 +22,37 @@ export function App() {
   const [showRanking, setShowRanking] = useState(false);
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      setPlayers((prevPlayers) =>
-        prevPlayers.map((player) => {
-          if (e.key === player.key && !player.finished) {
-            const newClicks = player.clicks + 1;
-            const isFinished = newClicks === MAX_CLICKS;
-            const finishedAt =
-              isFinished && !player.finishTime && startTime
-                ? Date.now() - startTime
-                : player.finishTime;
+  const handleKeyUp = (e: KeyboardEvent) => {
+    setPlayers((prevPlayers) =>
+      prevPlayers.map((player) => {
+        if (e.key === player.key && !player.finished) {
+          const newClicks = player.clicks + 1;
+          const isFinished = newClicks === MAX_CLICKS;
+          const finishedAt =
+            isFinished && !player.finishTime && startTime
+              ? Date.now() - startTime
+              : player.finishTime;
 
-            if (isFinished) {
-              setShowRanking(true);
-            }
-
-            return {
-              ...player,
-              clicks: newClicks,
-              finished: isFinished,
-              finishTime: finishedAt,
-            };
+          if (isFinished) {
+            setShowRanking(true);
           }
-          return player;
-        })
-      );
-    };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [startTime]);
+          return {
+            ...player,
+            clicks: newClicks,
+            finished: isFinished,
+            finishTime: finishedAt,
+          };
+        }
+        return player;
+      })
+    );
+  };
+
+  window.addEventListener("keyup", handleKeyUp);
+  return () => window.removeEventListener("keyup", handleKeyUp);
+}, [startTime]);
+
 
   if (showRanking) {
     const ranking = [...players].sort((a, b) => {
